@@ -42,11 +42,11 @@ class TaskController extends Controller
      * 
      * @return AnonymousResourceCollection Коллекция задач в формате TaskResource
      */
-    public function index(): AnonymousResourceCollection
+    public function index(): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|AnonymousResourceCollection
     {
         $tasks = Task::latest()->get();
 
-        return TaskResource::collection($tasks);
+        return $this->resource(TaskResource::collection($tasks));
     }
 
     /**
@@ -82,11 +82,11 @@ class TaskController extends Controller
      * @param StoreTaskRequest $request Валидированный запрос с данными для создания задачи
      * @return TaskResource Созданная задача в формате TaskResource
      */
-    public function store(StoreTaskRequest $request): TaskResource
+    public function store(StoreTaskRequest $request): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\App\Http\Resources\TaskResource
     {
         $task = Task::create($request->validated());
 
-        return new TaskResource($task);
+        return $this->resource(new TaskResource($task), 201);
     }
 
     /**
@@ -118,9 +118,9 @@ class TaskController extends Controller
      * @param Task $task Модель задачи (автоматически найдена по ID из URL)
      * @return TaskResource Задача в формате TaskResource
      */
-    public function show(Task $task): TaskResource
+    public function show(Task $task): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\App\Http\Resources\TaskResource
     {
-        return new TaskResource($task);
+        return $this->resource(new TaskResource($task));
     }
 
     /**
@@ -163,11 +163,11 @@ class TaskController extends Controller
      * @param Task $task Модель задачи для обновления (автоматически найдена по ID из URL)
      * @return TaskResource Обновленная задача в формате TaskResource
      */
-    public function update(UpdateTaskRequest $request, Task $task): TaskResource
+    public function update(UpdateTaskRequest $request, Task $task): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\App\Http\Resources\TaskResource
     {
         $task->update($request->validated());
 
-        return new TaskResource($task);
+        return $this->resource(new TaskResource($task));
     }
 
     /**
@@ -196,8 +196,6 @@ class TaskController extends Controller
     {
         $task->delete();
 
-        return response()->json([
-            'message' => 'Задача успешно удалена'
-        ], 200);
+        return $this->message('Задача успешно удалена', 200);
     }
 }
